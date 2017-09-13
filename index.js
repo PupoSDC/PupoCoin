@@ -7,17 +7,31 @@ class Block {
 		this.data         = data;
 		this.previoushash = previoushash;
 		this.hash         = this.makeHash();
+		this.code         = "nothing"
 	}
 
 	makeHash(){
-		return SHA256( this.data.toString() + this.previoushash ).toString();
+		return SHA256(
+			  this.data.toString()
+			+ this.previoushash
+			+ this.code
+		).toString();
+	}
+
+	mine(){
+		while( this.hash.substring(0,5) != "fffff"){
+			this.code = this.hash;
+			this.hash = this.makeHash();
+		}
 	}
 }
 
 class BlockChain {
 
 	constructor() {
-		this.chain = [ new Block( {},'0' ) ];
+		let genesis = new Block( {},'0' );
+		genesis.mine();
+		this.chain = [ genesis ];
 	}
 
 	print(){
@@ -25,16 +39,14 @@ class BlockChain {
 	}
 
 	addBlock( data ){
-
-		this.chain.push( new Block(
-			data,
-			this.chain[ this.chain.length - 1 ].hash
-		));
+		let block = new Block( data, this.chain[ this.chain.length - 1 ].hash );
+		block.mine();
+		this.chain.push( block );
 	}
 }
 
-b = new BlockChain();
-b.addBlock( { name: "peddro", wathever: "ewewew"} );
-b.addBlock( "adasfasfsafasf" );
-console.log( b.print() );
+blockchain = new BlockChain();
+blockchain.addBlock( { name: "peddro", wathever: "ewewew"} );
+blockchain.addBlock( "adasfasfsafasf" );
+console.log( blockchain.print() );
 
